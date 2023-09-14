@@ -1,10 +1,11 @@
+# Use this file to configure your API and MQTT inouts   
 mqtt:
   broker_address: "mqtt.example.com"
   port: 1883
   username: "your_username"
   password: "your_password"
   wait_seconds: 30
-  run_verbose: true
+  run_verbose: true ## <- Set to false to stop printing content to console
 emi:
   api_key: "your_emi_subscription_key"
-  gxp: 'HAY2201'  
+  gxp: 'HAY2201' ## <- set the gxp you want to call data for here

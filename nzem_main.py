@@ -7,47 +7,54 @@ import time
 import socket
 
 def fetch_prices(emi_config):
+    """
+    Fetches electricity price data from an API and processes it.
+
+    Args:
+        emi_config (dict): Configuration dictionary containing the API key and filter.
+
+    Returns:
+        dict: Processed and cleaned electricity price data.
+    """
     try:
         api_key = emi_config['api_key']
         api_filter = emi_config['gxp']
         
-        # Set api endpoint
+        # Set API endpoint and headers
         api_endpoint = "https://emi.azure-api.net/real-time-dispatch/"
-        
-        # Set the headers to include API key
         headers = {
             "Ocp-Apim-Subscription-Key": api_key,
             "Content-Type": "application/json",
         }
 
-        # Combine the base URL and API path
+        # Construct the API URL with a filter
         url = f"{api_endpoint}?$filter=PointOfConnectionCode eq '{api_filter}'"
 
-        # Send a GET request to the OpenShift API
+        # Send a GET request to the API
         response = requests.get(url, headers=headers)
-        response.raise_for_status()  # Check for any HTTP errors
+        response.raise_for_status()  # Check for HTTP errors
 
-        # Process the response content (e.g., JSON data)
+        # Process the API response (JSON data)
         data = response.json()
 
         cleaned_data = {}
-        # Loop through items in data that gets sent back
+        # Loop through items in the API response
         for item in data:
             # Extract the 'PointOfConnectionCode' value from the response
             point_of_connection = item['PointOfConnectionCode']
 
-            # Drop surplus elements from dictionary
+            # Remove surplus elements from the dictionary
             del item['PointOfConnectionCode']
             del item['FiveMinuteIntervalNumber']
             del item['RunDateTime']
 
-            # Rename and Reorder elements from dictionary
+            # Rename and reorder elements in the dictionary
             item['datetime'] = item.pop('FiveMinuteIntervalDatetime')
             item['price_mwh'] = item.pop('DollarsPerMegawattHour')
             item['load_mw'] = item.pop('SPDLoadMegawatt')
             item['generation_mw'] = item.pop('SPDGenerationMegawatt')
 
-            # Create the new dictionary with the desired structure
+            # Create a new dictionary with the desired structure
             new_dict = {point_of_connection: item}
 
             # Add the cleaned data to the dictionary
@@ -59,11 +66,21 @@ def fetch_prices(emi_config):
         print(f"Request error: {e}")
 
 def get_hostname():
-    # Get hostname for local machine
+    """
+    Retrieves the hostname of the local machine.
+
+    Returns:
+        str: The hostname.
+    """
     return socket.gethostname()
 
 def publish_price_data(config):
+    """
+    Publishes electricity price data to an MQTT broker.
 
+    Args:
+        config (dict): Configuration dictionary containing MQTT and API settings.
+    """
     emi_config =  config["emi"]
     mqtt_config = config["mqtt"]
     
@@ -75,38 +92,40 @@ def publish_price_data(config):
     wait_seconds = mqtt_config["wait_seconds"]
     run_verbose =  mqtt_config["run_verbose"]
     
-    # Topic settings
+    # Get the local machine's hostname
     server_name = get_hostname()
+
+    # Define MQTT topics
     lwt_topic = f"tele/{server_name}/LWT"  # Define the LWT topic
     lwt_message = "Offline"  # Define the LWT message
     sensor_topic = f"tele/{server_name}/PRICES"  # Change to the desired topic
     
-        # Create an MQTT client
+    # Create an MQTT client instance
     client = mqtt.Client("python_publisher")
 
-    # Set the username and password
+    # Set the MQTT username and password
     client.username_pw_set(username, password)
 
-    # Set the LWT message and topic
+    # Set the Last Will and Testament (LWT) message and topic
     client.will_set(lwt_topic, lwt_message, 0, retain=True)
 
     # Connect to the MQTT broker
     client.connect(broker_address, port)
 
-    # Initiate the LWT to "Online" when connected
+    # Publish the LWT message to indicate the script is online
     client.publish(lwt_topic, "Online", 0, retain=True)
     
     if run_verbose:
         print(f"Script Running\nPrices publishing to: {sensor_topic}\nLWT publishing to:     {lwt_topic}\n")
 
     while True:
-        
+        # Fetch electricity price data
         price_data = fetch_prices(emi_config)
         
         # Serialize the dictionary to a JSON string
         message_json = json.dumps(price_data)
 
-        # Publish the message to the MQTT topic
+        # Publish the JSON message to the MQTT topic
         client.publish(sensor_topic, message_json)
 
         if run_verbose:
@@ -116,12 +135,11 @@ def publish_price_data(config):
         time.sleep(wait_seconds)
 
 if __name__ == "__main__":
-# Example usage:
     # Get the directory of the current script
     script_dir = os.path.dirname(__file__)
 
     # Define the relative path to the YAML configuration file
-    config_file_path = os.path.join(script_dir, "nzem_config.yaml")
+    config_file_path = os.path.join(script_dir, "nzem_config_dev.yaml")
 
     # Load MQTT configuration from the YAML file
     with open(config_file_path, 'r') as config_file:
@@ -129,4 +147,3 @@ if __name__ == "__main__":
         
     # Call the function to start publishing data
     publish_price_data(config)
-
