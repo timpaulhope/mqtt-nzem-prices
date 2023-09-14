@@ -139,7 +139,7 @@ if __name__ == "__main__":
     script_dir = os.path.dirname(__file__)
 
     # Define the relative path to the YAML configuration file
-    config_file_path = os.path.join(script_dir, "nzem_config_dev.yaml")
+    config_file_path = os.path.join(script_dir, "nzem_config.yaml")
 
     # Load MQTT configuration from the YAML file
     with open(config_file_path, 'r') as config_file:
