@@ -1,6 +1,6 @@
 ## EMI Price Publisher
 
-This Python script fetches electricity price data from the EMI (Electricity Market Information) API and publishes it to an MQTT broker. The script is designed to be easily configurable and can run as a background process to provide real-time electricity price information.
+This beginner Python script fetches electricity price data from the EMI (Electricity Market Information) API and publishes it to an MQTT broker. The script is designed to be easily configurable and can run as a background process to provide real-time electricity price information.
 
 ### Prerequisites
 
