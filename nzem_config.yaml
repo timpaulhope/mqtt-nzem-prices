@@ -1,0 +1,10 @@
+mqtt:
+  broker_address: "mqtt.example.com"
+  port: 1883
+  username: "your_username"
+  password: "your_password"
+  wait_seconds: 30
+  run_verbose: true
+emi:
+  api_key: "your_emi_subscription_key"
+  gxp: 'HAY2201'  
