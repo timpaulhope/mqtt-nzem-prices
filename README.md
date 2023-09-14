@@ -2,7 +2,7 @@
 
 This beginner Python script fetches data from the [EMI (Electricity Market Information) API](https://emi.portal.azure-api.net/) and publishes it to an MQTT broker (like [Mosquitto](https://mosquitto.org/)).  
 The script is designed to be easily configurable and can run as a background process to capture real-time electricity price information.  
-The intended audience for this script are home automation hobbyist that want to leverage electricty pricing to drive automations and notifications to help them manage thier domestic consumption.
+The intended audience for this script are home automation hobbyist that want to leverage electricity pricing to drive automations and notifications to help them manage their domestic consumption.
 
 ### Prerequisites
 
