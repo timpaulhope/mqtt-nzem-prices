@@ -30,7 +30,7 @@ pip install requests paho-mqtt PyYAML
 3. Run the script:
 
 ```bash
-python emi_price_publisher.py
+python nzem_main.py
 ```
 
 Happy state is the script will start fetching electricity price data from the EMI API and publishing it to the specified MQTT topic. The script will continue running until manually stopped (e.g., by pressing Ctrl+C).
